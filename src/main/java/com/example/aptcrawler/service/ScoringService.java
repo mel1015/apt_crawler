@@ -3,6 +3,7 @@ package com.example.aptcrawler.service;
 import com.example.aptcrawler.config.UserProfile;
 import com.example.aptcrawler.dto.AptAnnouncementDto;
 import com.example.aptcrawler.dto.ScoredAnnouncement;
+import com.example.aptcrawler.dto.ScoredAnnouncement.ScoreBreakdown;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,31 +18,42 @@ public class ScoringService {
     }
 
     public int score(AptAnnouncementDto dto) {
-        int score = 0;
+        return scoreWithBreakdown(dto).score();
+    }
 
-        if (userProfile.isNewlywed() && isPositive(dto.getSpsplyHshldco())) {
-            score += 40;
-        }
-        if (userProfile.isFirstTimeBuyer() && isPositive(dto.getLfeFrstHshldco())) {
-            score += 30;
-        }
-        String region = dto.getSubscrptAreaCodeNm();
-        if (region != null && userProfile.getResidentRegion() != null
-                && region.contains(userProfile.getResidentRegion())) {
-            score += 20;
-        }
-        if (hasSmallUnit(dto.getExcluseLttotDtls())) {
-            score += 10;
-        }
-        return score;
+    public ScoredAnnouncement scoredAnnouncement(AptAnnouncementDto dto) {
+        Result r = scoreWithBreakdown(dto);
+        return new ScoredAnnouncement(dto, r.score(), r.breakdown());
     }
 
     public List<ScoredAnnouncement> scoreAndSort(List<AptAnnouncementDto> announcements) {
         return announcements.stream()
-                .map(a -> new ScoredAnnouncement(a, score(a)))
+                .map(this::scoredAnnouncement)
                 .sorted((a, b) -> Integer.compare(b.getScore(), a.getScore()))
                 .toList();
     }
+
+    private Result scoreWithBreakdown(AptAnnouncementDto dto) {
+        boolean hasSpecialSupply = isPositive(dto.getSpsplyHshldco())
+                || (dto.getSpsplyHshldco() == null && dto.getSpsplyRceptBgnde() != null);
+        boolean hasLifeFirst = isPositive(dto.getLfeFrstHshldco())
+                || (dto.getLfeFrstHshldco() == null && dto.getSpsplyRceptBgnde() != null);
+
+        boolean newlywed = userProfile.isNewlywed() && hasSpecialSupply;
+        boolean lifeFirst = userProfile.isFirstTimeBuyer() && hasLifeFirst;
+
+        String region = dto.getSubscrptAreaCodeNm();
+        String residentRegion = userProfile.getResidentRegion();
+        boolean regionMatch = region != null && residentRegion != null
+                && (region.contains(residentRegion) || residentRegion.contains(region));
+
+        boolean smallUnit = hasSmallUnit(dto.getExcluseLttotDtls());
+
+        int score = (newlywed ? 40 : 0) + (lifeFirst ? 30 : 0) + (regionMatch ? 20 : 0) + (smallUnit ? 10 : 0);
+        return new Result(score, new ScoreBreakdown(newlywed, lifeFirst, regionMatch, smallUnit));
+    }
+
+    private record Result(int score, ScoreBreakdown breakdown) {}
 
     private boolean isPositive(String value) {
         if (value == null) return false;

@@ -2,6 +2,7 @@ package com.example.aptcrawler.client;
 
 import com.example.aptcrawler.config.AptProperties;
 import com.example.aptcrawler.dto.AptAnnouncementDto;
+import com.example.aptcrawler.dto.AptUnitTypeDto;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
@@ -18,8 +19,9 @@ import java.util.List;
 public class AptApiClient {
 
     private static final Logger log = LoggerFactory.getLogger(AptApiClient.class);
-    private static final String PATH = "/getRLTotmHousingLttotPblancDetail";
-    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyyMMdd");
+    private static final String PATH = "/getAPTLttotPblancDetail";
+    private static final String MODEL_PATH = "/getAPTLttotPblancMdl";
+    private static final DateTimeFormatter DATE_FMT = DateTimeFormatter.ofPattern("yyyy-MM-dd");
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private final WebClient webClient;
@@ -36,10 +38,9 @@ public class AptApiClient {
             JsonNode root = webClient.get()
                     .uri(aptProperties.getApiUrl() + PATH, uriBuilder -> uriBuilder
                             .queryParam("serviceKey", aptProperties.getApiKey())
-                            .queryParam("pageNo", 1)
-                            .queryParam("numOfRows", 100)
-                            .queryParam("startSubscriptDate", today)
-                            .queryParam("_type", "json")
+                            .queryParam("page", 1)
+                            .queryParam("perPage", 100)
+                            .queryParam("cond[RCEPT_ENDDE::GTE]", today)
                             .build())
                     .retrieve()
                     .bodyToMono(JsonNode.class)
@@ -52,18 +53,36 @@ public class AptApiClient {
         }
     }
 
+    public List<AptUnitTypeDto> fetchUnitTypes(String houseManageNo) {
+        try {
+            JsonNode root = webClient.get()
+                    .uri(aptProperties.getApiUrl() + MODEL_PATH, uriBuilder -> uriBuilder
+                            .queryParam("serviceKey", aptProperties.getApiKey())
+                            .queryParam("page", 1)
+                            .queryParam("perPage", 50)
+                            .queryParam("cond[HOUSE_MANAGE_NO::EQ]", houseManageNo)
+                            .build())
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .block();
+            if (root == null) return Collections.emptyList();
+            JsonNode data = root.path("data");
+            if (data.isMissingNode() || !data.isArray() || data.isEmpty()) return Collections.emptyList();
+            return MAPPER.readerForListOf(AptUnitTypeDto.class).readValue(data);
+        } catch (Exception e) {
+            log.warn("주택형 API 호출 실패 ({}): {}", houseManageNo, e.getMessage());
+            return Collections.emptyList();
+        }
+    }
+
     private List<AptAnnouncementDto> parseItems(JsonNode root) {
         if (root == null) return Collections.emptyList();
 
-        JsonNode item = root.path("response").path("body").path("items").path("item");
-        if (item.isMissingNode() || item.isNull()) return Collections.emptyList();
+        JsonNode data = root.path("data");
+        if (data.isMissingNode() || data.isNull() || !data.isArray()) return Collections.emptyList();
 
         try {
-            if (item.isArray()) {
-                return MAPPER.readerForListOf(AptAnnouncementDto.class).readValue(item);
-            } else {
-                return List.of(MAPPER.treeToValue(item, AptAnnouncementDto.class));
-            }
+            return MAPPER.readerForListOf(AptAnnouncementDto.class).readValue(data);
         } catch (Exception e) {
             log.warn("DTO 변환 오류", e);
             return Collections.emptyList();

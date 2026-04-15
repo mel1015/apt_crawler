@@ -6,11 +6,17 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class AptAnnouncementDto {
 
+    @JsonProperty("HOUSE_MANAGE_NO")
+    private String houseManageNo;
+
     @JsonProperty("PBLANC_NO")
     private String pblancNo;
 
-    @JsonProperty("PBLANC_NM")
+    @JsonProperty("HOUSE_NM")
     private String pblancNm;
+
+    @JsonProperty("SPSPLY_RCEPT_BGNDE")
+    private String spsplyRceptBgnde;
 
     @JsonProperty("SUBSCRPT_AREA_CODE_NM")
     private String subscrptAreaCodeNm;
@@ -35,6 +41,9 @@ public class AptAnnouncementDto {
 
     @JsonProperty("LTTOT_TOP_AMOUNT")
     private String lttotTopAmount;
+
+    public String getHouseManageNo() { return houseManageNo; }
+    public void setHouseManageNo(String houseManageNo) { this.houseManageNo = houseManageNo; }
 
     public String getPblancNo() { return pblancNo; }
     public void setPblancNo(String pblancNo) { this.pblancNo = pblancNo; }
@@ -65,4 +74,7 @@ public class AptAnnouncementDto {
 
     public String getLttotTopAmount() { return lttotTopAmount; }
     public void setLttotTopAmount(String lttotTopAmount) { this.lttotTopAmount = lttotTopAmount; }
+
+    public String getSpsplyRceptBgnde() { return spsplyRceptBgnde; }
+    public void setSpsplyRceptBgnde(String spsplyRceptBgnde) { this.spsplyRceptBgnde = spsplyRceptBgnde; }
 }

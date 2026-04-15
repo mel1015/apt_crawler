@@ -16,7 +16,7 @@ class RegionFilterServiceTest {
     @BeforeEach
     void setUp() {
         AptProperties props = new AptProperties();
-        props.setRegions(List.of("강남구"));
+        props.setRegions("강남구");
         service = new RegionFilterService(props);
     }
 
@@ -52,7 +52,7 @@ class RegionFilterServiceTest {
     @Test
     void 지역설정_비어있으면_전체반환() {
         AptProperties props = new AptProperties();
-        props.setRegions(List.of());
+        props.setRegions("");
         RegionFilterService emptyService = new RegionFilterService(props);
 
         List<AptAnnouncementDto> result = emptyService.filter(List.of(dto("경기도 수원시")));
