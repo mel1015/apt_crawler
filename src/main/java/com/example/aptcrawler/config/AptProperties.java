@@ -10,7 +10,6 @@ import java.util.List;
 public class AptProperties {
     private String apiKey;
     private String apiUrl;
-    private String cron;
     private String regions;
     private int topN;
     private long maxPrice;
@@ -20,9 +19,6 @@ public class AptProperties {
 
     public String getApiUrl() { return apiUrl; }
     public void setApiUrl(String apiUrl) { this.apiUrl = apiUrl; }
-
-    public String getCron() { return cron; }
-    public void setCron(String cron) { this.cron = cron; }
 
     public String getRegions() { return regions; }
     public void setRegions(String regions) { this.regions = regions; }

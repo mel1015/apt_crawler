@@ -12,9 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Component
 public class AptCrawlerScheduler {
@@ -26,8 +24,6 @@ public class AptCrawlerScheduler {
     private final ScoringService scoringService;
     private final SlackNotificationService slackNotificationService;
     private final AptProperties aptProperties;
-    private final Set<String> processedIds = new HashSet<>();
-
     public AptCrawlerScheduler(AptApiClient aptApiClient,
                                 RegionFilterService regionFilterService,
                                 ScoringService scoringService,
@@ -46,16 +42,12 @@ public class AptCrawlerScheduler {
             List<AptAnnouncementDto> all = aptApiClient.fetchAnnouncements();
             List<AptAnnouncementDto> filtered = regionFilterService.filter(all);
 
-            List<AptAnnouncementDto> newOnes = filtered.stream()
-                    .filter(a -> a.getPblancNo() != null && !processedIds.contains(a.getPblancNo()))
-                    .toList();
-
-            if (newOnes.isEmpty()) {
-                log.info("조건에 맞는 신규 공고 없음");
+            if (filtered.isEmpty()) {
+                log.info("조건에 맞는 공고 없음");
                 return;
             }
 
-            List<ScoredAnnouncement> scored = scoringService.scoreAndSort(newOnes);
+            List<ScoredAnnouncement> scored = scoringService.scoreAndSort(filtered);
 
             scored.forEach(sa -> {
                 String key = sa.getAnnouncement().getHouseManageNo();
@@ -72,7 +64,6 @@ public class AptCrawlerScheduler {
                     .toList();
 
             slackNotificationService.send(topN);
-            newOnes.forEach(a -> processedIds.add(a.getPblancNo()));
             log.info("청약 공고 {}건 알림 전송 완료", topN.size());
 
         } catch (AptApiException e) {

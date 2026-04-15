@@ -71,7 +71,7 @@ AptCrawlerApplication (ApplicationRunner)
 
 - **Java 25 환경**: Lombok이 Java 25와 호환되지 않아(`TypeTag::UNKNOWN` 미존재) 사용 불가. 모든 getter/setter/constructor는 수동 작성.
 - **Gradle 9.4.0**: `testRuntimeOnly 'org.junit.platform:junit-platform-launcher'` 명시 필요. `jar { enabled = false }` 로 plain jar 생성 비활성화.
-- 중복 알림 방지용 `processedIds` Set은 메모리 캐시(앱 재시작 시 초기화). 일 1회 실행이므로 허용.
+- `gradle/wrapper/gradle-wrapper.jar`는 `.gitignore` 예외 처리되어 있음 — GitHub Actions 빌드에 필요하므로 반드시 커밋 포함.
 
 ### API 응답 구조
 

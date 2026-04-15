@@ -5,7 +5,6 @@ spring:
 apt:
   api-key: ${APT_API_KEY}
   api-url: https://api.odcloud.kr/api/ApplyhomeInfoDetailSvc/v1
-  cron: ${APT_CRON:0 0 9 * * *}
   regions: ${APT_REGIONS:강남구}
   top-n: ${APT_TOP_N:10}
   max-price: ${APT_MAX_PRICE:0}
