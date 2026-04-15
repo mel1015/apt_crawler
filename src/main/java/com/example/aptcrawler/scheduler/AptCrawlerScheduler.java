@@ -10,7 +10,6 @@ import com.example.aptcrawler.service.ScoringService;
 import com.example.aptcrawler.service.SlackNotificationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.HashSet;
@@ -41,7 +40,6 @@ public class AptCrawlerScheduler {
         this.aptProperties = aptProperties;
     }
 
-    @Scheduled(cron = "${apt.cron:0 0 9 * * *}")
     public void run() {
         log.info("청약 공고 조회 시작");
         try {
