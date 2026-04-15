@@ -35,8 +35,8 @@ APT_CRON=0 0 9 * * *        # 매일 오전 9시 (기본값)
 APT_REGION_1=강남구           # 관심 지역
 APT_TOP_N=10                 # Slack에 전송할 최대 공고 수
 
-USER_MONTHLY_INCOME=4133867  # 월 소득 (원)
-USER_RESIDENT_REGION=서울특별시 강남구
+USER_MONTHLY_INCOME=          # 월 소득 (원, 예: 4000000)
+USER_RESIDENT_REGION=         # 거주 지역 (예: 서울특별시 강남구)
 USER_IS_NEWLYWED=true
 USER_IS_FIRST_TIME_BUYER=true
 
