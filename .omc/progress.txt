@@ -1,0 +1,50 @@
+# apt-crawler 구현 진행 기록
+
+## 완료 일시
+2026-04-15
+
+## 핵심 결정사항
+
+### Lombok 미사용
+- Java 25 환경에서 Lombok 1.18.34가 `com.sun.tools.javac.code.TypeTag::UNKNOWN` 필드를 찾지 못해 컴파일 실패
+- 해결: 모든 파일에서 Lombok 제거, 수동 getter/setter/constructor 작성
+- Gradle 9.4.0 + Java 25 조합에서는 Lombok 사용 불가
+
+### JUnit Platform Launcher 명시적 추가 필요
+- Gradle 9.x에서 `testRuntimeOnly 'org.junit.platform:junit-platform-launcher'` 를 명시하지 않으면
+  "Failed to load JUnit Platform" 오류 발생
+
+### UserProfile 필드명
+- `isNewlywed` / `isFirstTimeBuyer` 대신 `newlywed` / `firstTimeBuyer` 사용
+- application.yml 키: `newlywed`, `first-time-buyer`
+- `is-` 접두어를 YAML 키에 붙이면 Spring Boot relaxed binding 시 setter 매칭 실패
+
+### gradle wrapper
+- 시스템 gradle 미설치 환경 → claude_app 프로젝트의 gradlew wrapper 복사 사용
+
+## 테스트 결과
+- AptApiClientTest: 4/4 PASS
+- RegionFilterServiceTest: 4/4 PASS
+- ScoringServiceTest: 5/5 PASS
+- 총 13개 PASS
+
+## 파일 구조
+src/main/java/com/example/aptcrawler/
+├── AptCrawlerApplication.java
+├── client/
+│   ├── AptApiClient.java
+│   └── AptApiException.java
+├── config/
+│   ├── AppConfig.java
+│   ├── AptProperties.java
+│   ├── SlackProperties.java
+│   └── UserProfile.java
+├── dto/
+│   ├── AptAnnouncementDto.java
+│   └── ScoredAnnouncement.java
+├── scheduler/
+│   └── AptCrawlerScheduler.java
+└── service/
+    ├── RegionFilterService.java
+    ├── ScoringService.java
+    └── SlackNotificationService.java

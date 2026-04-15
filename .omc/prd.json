@@ -1,0 +1,85 @@
+{
+  "project": "apt-crawler",
+  "stories": [
+    {
+      "id": "US-001",
+      "title": "프로젝트 골격 및 빌드 설정",
+      "passes": true,
+      "acceptanceCriteria": [
+        "build.gradle에 spring-boot-starter-webflux, mockwebserver, junit-platform-launcher 의존성이 존재한다",
+        "./gradlew compileJava 가 오류 없이 완료된다",
+        ".gitignore에 .env 항목이 존재한다",
+        ".env.example 파일이 존재하며 APT_API_KEY, SLACK_WEBHOOK_URL, USER_MONTHLY_INCOME, USER_RESIDENT_REGION 키가 포함되어 있다",
+        "AptCrawlerApplication.java에 @EnableScheduling 이 선언되어 있다"
+      ]
+    },
+    {
+      "id": "US-002",
+      "title": "설정 프로퍼티 클래스 (AptProperties, UserProfile)",
+      "passes": true,
+      "acceptanceCriteria": [
+        "AptProperties.java가 @ConfigurationProperties(\"apt\")로 선언되어 있고 apiKey, apiUrl, cron, regions, topN 필드를 가진다",
+        "UserProfile.java가 @ConfigurationProperties(\"user\")로 선언되어 있고 monthlyIncome, residentRegion, newlywed, firstTimeBuyer 필드를 가진다",
+        "application.yml에 apt.api-key, apt.cron, apt.regions, user.monthly-income, user.resident-region, slack.webhook-url 항목이 ${ENV_VAR} 형식으로 존재한다",
+        "./gradlew compileJava 오류 없음"
+      ]
+    },
+    {
+      "id": "US-003",
+      "title": "청약 API DTO 및 클라이언트",
+      "passes": true,
+      "acceptanceCriteria": [
+        "AptAnnouncementDto.java에 pblancNo, pblancNm, subscrptAreaCodeNm, rceptBgnde, rceptEndde, totSuplyHshldco, spsplyHshldco, lfeFrstHshldco 필드가 존재한다",
+        "AptApiClient.java가 WebClient를 사용해 공공데이터포털 API를 호출하고 List<AptAnnouncementDto>를 반환한다",
+        "AptApiClientTest.java 4개 테스트 PASS (배열응답, 단건응답, 빈응답, 서버오류)"
+      ]
+    },
+    {
+      "id": "US-004",
+      "title": "지역 필터 서비스",
+      "passes": true,
+      "acceptanceCriteria": [
+        "RegionFilterService.java가 apt.regions 설정에 포함된 지역명과 일치하는 공고만 반환한다",
+        "RegionFilterServiceTest 4개 테스트 PASS"
+      ]
+    },
+    {
+      "id": "US-005",
+      "title": "당첨 확률 점수 계산 서비스",
+      "passes": true,
+      "acceptanceCriteria": [
+        "ScoringService.java가 신혼부부+40, 생애최초+30, 거주지역일치+20, 85㎡이하+10 점수를 계산한다",
+        "ScoringServiceTest 5개 테스트 PASS (100점, 0점, 40점, 30점, 정렬)"
+      ]
+    },
+    {
+      "id": "US-006",
+      "title": "Slack 알림 서비스",
+      "passes": true,
+      "acceptanceCriteria": [
+        "SlackNotificationService.java가 Block Kit JSON을 구성하고 Webhook URL로 POST한다",
+        "빈 목록이면 POST 미전송",
+        "에러 시 [오류] 메시지 전송"
+      ]
+    },
+    {
+      "id": "US-007",
+      "title": "스케줄러 통합",
+      "passes": true,
+      "acceptanceCriteria": [
+        "AptCrawlerScheduler.java가 @Scheduled(cron)으로 API호출→필터→점수→정렬→Slack 흐름을 실행한다",
+        "상위 top-n 건만 전송, 중복 ID Set 캐시 적용"
+      ]
+    },
+    {
+      "id": "US-008",
+      "title": "Docker 빌드 설정",
+      "passes": true,
+      "acceptanceCriteria": [
+        "Dockerfile이 멀티스테이지 빌드로 구성되어 있다",
+        "docker-compose.yml에 env_file: .env와 restart: unless-stopped가 설정되어 있다",
+        "docker compose config 명령이 오류 없이 완료된다"
+      ]
+    }
+  ]
+}

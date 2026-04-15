@@ -1,0 +1,12 @@
+.env
+.env*
+*.class
+build/
+.gradle/
+*.jar
+.idea/
+*.iml
+out/
+.vscode/
+.omc/sessions/
+.omc/state/

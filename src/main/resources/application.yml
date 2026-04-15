@@ -1,0 +1,16 @@
+apt:
+  api-key: ${APT_API_KEY}
+  api-url: https://apis.data.go.kr/B552555/APTRentSvc
+  cron: ${APT_CRON:0 0 9 * * *}
+  regions:
+    - ${APT_REGION_1:강남구}
+  top-n: ${APT_TOP_N:10}
+
+user:
+  monthly-income: ${USER_MONTHLY_INCOME:0}
+  resident-region: ${USER_RESIDENT_REGION:}
+  newlywed: ${USER_IS_NEWLYWED:false}
+  first-time-buyer: ${USER_IS_FIRST_TIME_BUYER:false}
+
+slack:
+  webhook-url: ${SLACK_WEBHOOK_URL}
