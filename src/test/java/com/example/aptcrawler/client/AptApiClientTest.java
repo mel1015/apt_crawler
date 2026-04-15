@@ -41,24 +41,21 @@ class AptApiClientTest {
     void fetchAnnouncements_배열응답_파싱성공() {
         String json = """
                 {
-                  "response": {
-                    "body": {
-                      "items": {
-                        "item": [
-                          {
-                            "PBLANC_NO": "2024-001",
-                            "PBLANC_NM": "강남 래미안 분양",
-                            "SUBSCRPT_AREA_CODE_NM": "서울특별시 강남구",
-                            "RCEPT_BGNDE": "20241101",
-                            "RCEPT_ENDDE": "20241105",
-                            "TOT_SUPLY_HSHLDCO": "300",
-                            "SPSPLY_HSHLDCO": "100",
-                            "LFE_FRST_HSHLDCO": "50"
-                          }
-                        ]
-                      }
+                  "data": [
+                    {
+                      "PBLANC_NO": "2024-001",
+                      "HOUSE_NM": "강남 래미안 분양",
+                      "SUBSCRPT_AREA_CODE_NM": "서울",
+                      "RCEPT_BGNDE": "2024-11-01",
+                      "RCEPT_ENDDE": "2024-11-05",
+                      "TOT_SUPLY_HSHLDCO": 300,
+                      "SPSPLY_HSHLDCO": "100",
+                      "LFE_FRST_HSHLDCO": "50"
                     }
-                  }
+                  ],
+                  "totalCount": 1,
+                  "page": 1,
+                  "perPage": 10
                 }
                 """;
 
@@ -71,27 +68,24 @@ class AptApiClientTest {
         assertThat(result).hasSize(1);
         assertThat(result.get(0).getPblancNo()).isEqualTo("2024-001");
         assertThat(result.get(0).getPblancNm()).isEqualTo("강남 래미안 분양");
-        assertThat(result.get(0).getSubscrptAreaCodeNm()).isEqualTo("서울특별시 강남구");
+        assertThat(result.get(0).getSubscrptAreaCodeNm()).isEqualTo("서울");
     }
 
     @Test
     void fetchAnnouncements_단건응답_파싱성공() {
         String json = """
                 {
-                  "response": {
-                    "body": {
-                      "items": {
-                        "item": {
-                          "PBLANC_NO": "2024-002",
-                          "PBLANC_NM": "서초 아이파크",
-                          "SUBSCRPT_AREA_CODE_NM": "서울특별시 서초구",
-                          "RCEPT_BGNDE": "20241110",
-                          "RCEPT_ENDDE": "20241115",
-                          "TOT_SUPLY_HSHLDCO": "150"
-                        }
-                      }
+                  "data": [
+                    {
+                      "PBLANC_NO": "2024-002",
+                      "HOUSE_NM": "서초 아이파크",
+                      "SUBSCRPT_AREA_CODE_NM": "서울",
+                      "RCEPT_BGNDE": "2024-11-10",
+                      "RCEPT_ENDDE": "2024-11-15",
+                      "TOT_SUPLY_HSHLDCO": 150
                     }
-                  }
+                  ],
+                  "totalCount": 1
                 }
                 """;
 
@@ -109,11 +103,8 @@ class AptApiClientTest {
     void fetchAnnouncements_빈응답_빈리스트반환() {
         String json = """
                 {
-                  "response": {
-                    "body": {
-                      "items": {}
-                    }
-                  }
+                  "data": [],
+                  "totalCount": 0
                 }
                 """;
 

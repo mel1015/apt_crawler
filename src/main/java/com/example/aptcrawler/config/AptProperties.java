@@ -11,8 +11,9 @@ public class AptProperties {
     private String apiKey;
     private String apiUrl;
     private String cron;
-    private List<String> regions;
+    private String regions;
     private int topN;
+    private long maxPrice;
 
     public String getApiKey() { return apiKey; }
     public void setApiKey(String apiKey) { this.apiKey = apiKey; }
@@ -23,9 +24,18 @@ public class AptProperties {
     public String getCron() { return cron; }
     public void setCron(String cron) { this.cron = cron; }
 
-    public List<String> getRegions() { return regions; }
-    public void setRegions(List<String> regions) { this.regions = regions; }
+    public String getRegions() { return regions; }
+    public void setRegions(String regions) { this.regions = regions; }
+
+    public List<String> getRegionList() {
+        if (regions == null || regions.isBlank()) return List.of();
+        return List.of(regions.split(",")).stream()
+                .map(String::trim).filter(s -> !s.isEmpty()).toList();
+    }
 
     public int getTopN() { return topN; }
     public void setTopN(int topN) { this.topN = topN; }
+
+    public long getMaxPrice() { return maxPrice; }
+    public void setMaxPrice(long maxPrice) { this.maxPrice = maxPrice; }
 }

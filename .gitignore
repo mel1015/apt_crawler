@@ -11,3 +11,5 @@ out/
 .vscode/
 .omc/sessions/
 .omc/state/
+.omc/project-memory.json
+.claude/

@@ -57,18 +57,40 @@ public class AptCrawlerScheduler {
                 return;
             }
 
-            List<ScoredAnnouncement> scored = scoringService.scoreAndSort(newOnes)
-                    .stream()
+            List<ScoredAnnouncement> scored = scoringService.scoreAndSort(newOnes);
+
+            scored.forEach(sa -> {
+                String key = sa.getAnnouncement().getHouseManageNo();
+                if (key != null) sa.setUnitTypes(aptApiClient.fetchUnitTypes(key));
+            });
+
+            long maxPrice = aptProperties.getMaxPrice();
+            List<ScoredAnnouncement> priceFiltered = maxPrice > 0
+                    ? scored.stream().filter(sa -> hasAffordableUnit(sa, maxPrice)).toList()
+                    : scored;
+
+            List<ScoredAnnouncement> topN = priceFiltered.stream()
                     .limit(aptProperties.getTopN())
                     .toList();
 
-            slackNotificationService.send(scored);
+            slackNotificationService.send(topN);
             newOnes.forEach(a -> processedIds.add(a.getPblancNo()));
-            log.info("청약 공고 {}건 알림 전송 완료", scored.size());
+            log.info("청약 공고 {}건 알림 전송 완료", topN.size());
 
         } catch (AptApiException e) {
             log.error("API 오류 발생", e);
             slackNotificationService.sendError(e.getMessage());
         }
+    }
+
+    private boolean hasAffordableUnit(ScoredAnnouncement sa, long maxPrice) {
+        if (sa.getUnitTypes().isEmpty()) return true;
+        long maxManwon = maxPrice / 10_000; // maxPrice는 원, API는 만원 단위
+        return sa.getUnitTypes().stream().anyMatch(u -> {
+            String top = u.getLttotTopAmount();
+            if (top == null || top.isBlank()) return true;
+            try { return Long.parseLong(top.replaceAll("[^0-9]", "")) <= maxManwon; }
+            catch (NumberFormatException e) { return true; }
+        });
     }
 }

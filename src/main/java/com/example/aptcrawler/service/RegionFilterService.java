@@ -16,8 +16,8 @@ public class RegionFilterService {
     }
 
     public List<AptAnnouncementDto> filter(List<AptAnnouncementDto> announcements) {
-        List<String> regions = aptProperties.getRegions();
-        if (regions == null || regions.isEmpty()) {
+        List<String> regions = aptProperties.getRegionList();
+        if (regions.isEmpty()) {
             return announcements;
         }
         return announcements.stream()
