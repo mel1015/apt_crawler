@@ -30,15 +30,18 @@ docker compose logs -f
 
 ### 실행 흐름
 
+GitHub Actions가 매일 KST 09:00에 트리거 → 앱 시작 → `ApplicationRunner.run()` → 완료 후 종료.
+
 ```
-AptCrawlerScheduler (@Scheduled)
-  → AptApiClient          청약홈 API 호출 (WebClient, JSON)
-      fetchAnnouncements()   getAPTLttotPblancDetail — 공고 목록
-      fetchUnitTypes()       getAPTLttotPblancMdl    — 주택형별 상세
-  → RegionFilterService   apt.regions 설정 기준 지역 필터링
-  → ScoringService        사용자 프로필 기반 당첨 확률 점수 계산 후 내림차순 정렬
-  → AptCrawlerScheduler   APT_MAX_PRICE 초과 공고 제거
-  → SlackNotificationService  상위 top-n건 Slack Block Kit 메시지 전송
+AptCrawlerApplication (ApplicationRunner)
+  → AptCrawlerScheduler.run()
+      → AptApiClient          청약홈 API 호출 (WebClient, JSON)
+          fetchAnnouncements()   getAPTLttotPblancDetail — 공고 목록
+          fetchUnitTypes()       getAPTLttotPblancMdl    — 주택형별 상세
+      → RegionFilterService   apt.regions 설정 기준 지역 필터링
+      → ScoringService        사용자 프로필 기반 당첨 확률 점수 계산 후 내림차순 정렬
+      → AptCrawlerScheduler   APT_MAX_PRICE 초과 공고 제거
+      → SlackNotificationService  상위 top-n건 Slack Block Kit 메시지 전송
 ```
 
 ### 점수 계산 기준 (`ScoringService`)
